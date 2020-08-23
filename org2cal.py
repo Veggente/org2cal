@@ -100,8 +100,10 @@ def clock_report(
     log_file.export_clock(dates, outfile)
 
 
-def main(args):
+def main(args=None):
     """Main script."""
+    parser = get_parser()
+    args = parser.parse_args(args)
     config = configparser.ConfigParser()
     rcfile = expanduser("~/.org2calrc")
     config.read(rcfile)
@@ -130,13 +132,21 @@ def main(args):
         print("Set the source and output first.")
 
 
-if __name__ == "__main__":
+def get_parser():
+    """Creates a new argument parser.
+
+    Adapted from a gist by Steffen Exler at
+    https://gist.github.com/linuxluigi/0613c2c699d16cb5e171b063c266c3ad
+    """
     parser = argparse.ArgumentParser(
         description="Converts org clock report to iCalendar.  Default is for today."
     )
-    parser.add_argument("-s", "--start", type=str, help="Starting date")
-    parser.add_argument("-e", "--end", type=str, help="Ending date")
+    parser.add_argument("--start", "-s", type=str, help="Starting date")
+    parser.add_argument("--end", "-e", type=str, help="Ending date")
     parser.add_argument("--set-source", type=str, help="Set source org file")
     parser.add_argument("--set-output", type=str, help="Set output ics file")
-    args = parser.parse_args()
-    main(args)
+    return parser
+
+
+if __name__ == "__main__":
+    main()
