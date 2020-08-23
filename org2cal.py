@@ -1,6 +1,11 @@
+#!/usr/bin/env python3
 """Converts LOGBOOK entries in an emacs org file to iCalendar format."""
 from typing import List
 import datetime
+import argparse
+import configparser
+from os.path import expanduser
+import subprocess
 import orgparse
 
 
@@ -73,7 +78,10 @@ END:VEVENT\n""".format(
 
 
 def clock_report(
-    orgfile: str, outfile: str, start: datetime.date, end: datetime.date  # pylint: disable=bad-continuation
+    orgfile: str,  # pylint: disable=bad-continuation
+    outfile: str,  # pylint: disable=bad-continuation
+    start: datetime.date,  # pylint: disable=bad-continuation
+    end: datetime.date,  # pylint: disable=bad-continuation
 ) -> None:
     """Gets clock report in iCalendar format.
 
@@ -90,3 +98,45 @@ def clock_report(
     num_days = (end - start).days + 1
     dates = [start + datetime.timedelta(n) for n in range(num_days)]
     log_file.export_clock(dates, outfile)
+
+
+def main(args):
+    """Main script."""
+    config = configparser.ConfigParser()
+    rcfile = expanduser("~/.org2calrc")
+    config.read(rcfile)
+    if args.set_source or args.set_output:
+        if args.set_source:
+            config["DEFAULT"]["source"] = args.set_source
+        if args.set_output:
+            config["DEFAULT"]["output"] = args.set_output
+        with open(rcfile, "w") as f:
+            config.write(f)
+        return
+    try:
+        if args.start:
+            to_date = lambda date_str: datetime.date(
+                *[int(num) for num in date_str.split("-")]
+            )
+            start = to_date(args.start)
+            end = to_date(args.end)
+        else:
+            start = datetime.date.today()
+            end = start
+        default_conf = config["DEFAULT"]
+        clock_report(default_conf["source"], default_conf["output"], start, end)
+        subprocess.call(("open", default_conf["output"]))
+    except KeyError:
+        print("Set the source and output first.")
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(
+        description="Converts org clock report to iCalendar.  Default is for today."
+    )
+    parser.add_argument("-s", "--start", type=str, help="Starting date")
+    parser.add_argument("-e", "--end", type=str, help="Ending date")
+    parser.add_argument("--set-source", type=str, help="Set source org file")
+    parser.add_argument("--set-output", type=str, help="Set output ics file")
+    args = parser.parse_args()
+    main(args)
