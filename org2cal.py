@@ -122,9 +122,10 @@ def main(args=None):
             )
             start = to_date(args.start)
             end = to_date(args.end)
+        elif args.yesterday:
+            start = end = datetime.date.today() - datetime.timedelta(1)
         else:
-            start = datetime.date.today()
-            end = start
+            start = end = datetime.date.today()
         default_conf = config["DEFAULT"]
         clock_report(default_conf["source"], default_conf["output"], start, end)
         subprocess.call(("open", default_conf["output"]))
@@ -143,6 +144,7 @@ def get_parser():
     )
     parser.add_argument("--start", "-s", type=str, help="Starting date")
     parser.add_argument("--end", "-e", type=str, help="Ending date")
+    parser.add_argument("--yesterday", "-y", action="store_true", help="Yesterday")
     parser.add_argument("--set-source", type=str, help="Set source org file")
     parser.add_argument("--set-output", type=str, help="Set output ics file")
     return parser
