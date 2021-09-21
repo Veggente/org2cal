@@ -142,8 +142,8 @@ def get_parser():
     parser = argparse.ArgumentParser(
         description="Converts org clock report to iCalendar.  Default is for today."
     )
-    parser.add_argument("--start", "-s", type=str, help="Starting date")
-    parser.add_argument("--end", "-e", type=str, help="Ending date")
+    parser.add_argument("--start", "-s", type=str, help="Starting date in YYYY-(M)M-(D)D format")
+    parser.add_argument("--end", "-e", type=str, help="Ending date in YYYY-(M)M-(D)D format")
     parser.add_argument("--yesterday", "-y", action="store_true", help="Yesterday")
     parser.add_argument("--set-source", type=str, help="Set source org file")
     parser.add_argument("--set-output", type=str, help="Set output ics file")
