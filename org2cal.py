@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 """Converts LOGBOOK entries in an emacs org file to iCalendar format."""
-from typing import List
 import datetime
 import argparse
 import configparser
@@ -10,7 +9,12 @@ import orgparse
 
 
 class OrgFile:
-    """Emacs org file."""
+    """Emacs org file.
+
+    Attributes:
+        root: orgparse.node.OrgNode
+            The root node in the org tree.
+    """
 
     def __init__(self, filename: str) -> None:
         """Initialization.
@@ -24,7 +28,7 @@ class OrgFile:
         with open(filename) as f:
             self.root = orgparse.load(f)
 
-    def export_clock(self, dates: List[datetime.date], outfile: str) -> None:
+    def export_clock(self, dates: list[datetime.date], outfile: str) -> None:
         """Exports clock report to ICS format.
 
         Args:
@@ -38,7 +42,7 @@ class OrgFile:
             f.write(
                 """BEGIN:VCALENDAR
 VERSION:2.0
-PRODID:-//Veggente//EN
+PRODID:-//User//EN
 CALSCALE:GREGORIAN\n"""
             )
             for node in self.root[1:]:
@@ -51,7 +55,7 @@ CALSCALE:GREGORIAN\n"""
             f.write("""END:VCALENDAR\n""")
 
     @staticmethod
-    def to_ics(event: orgparse.date.OrgDateClock, ancestor_headings: List[str]) -> str:
+    def to_ics(event: orgparse.date.OrgDateClock, ancestor_headings: list[str]) -> str:
         """Converts an event to ICS format.
 
         Args:
@@ -70,18 +74,18 @@ SUMMARY:{}
 DESCRIPTION:{}
 DTSTART;TZID=US-Eastern:{}
 END:VEVENT\n""".format(
-            end,  # pylint: disable=bad-continuation
-            ancestor_headings[-1],  # pylint: disable=bad-continuation
-            " -> ".join(ancestor_headings),  # pylint: disable=bad-continuation
-            start,  # pylint: disable=bad-continuation
+            end,
+            ancestor_headings[-1],
+            " -> ".join(ancestor_headings),
+            start,
         )
 
 
 def clock_report(
-    orgfile: str,  # pylint: disable=bad-continuation
-    outfile: str,  # pylint: disable=bad-continuation
-    start: datetime.date,  # pylint: disable=bad-continuation
-    end: datetime.date,  # pylint: disable=bad-continuation
+    orgfile: str,
+    outfile: str,
+    start: datetime.date,
+    end: datetime.date,
 ) -> None:
     """Gets clock report in iCalendar format.
 
@@ -142,8 +146,12 @@ def get_parser():
     parser = argparse.ArgumentParser(
         description="Converts org clock report to iCalendar.  Default is for today."
     )
-    parser.add_argument("--start", "-s", type=str, help="Starting date in YYYY-(M)M-(D)D format")
-    parser.add_argument("--end", "-e", type=str, help="Ending date in YYYY-(M)M-(D)D format")
+    parser.add_argument(
+        "--start", "-s", type=str, help="Starting date in YYYY-(M)M-(D)D format"
+    )
+    parser.add_argument(
+        "--end", "-e", type=str, help="Ending date in YYYY-(M)M-(D)D format"
+    )
     parser.add_argument("--yesterday", "-y", action="store_true", help="Yesterday")
     parser.add_argument("--set-source", type=str, help="Set source org file")
     parser.add_argument("--set-output", type=str, help="Set output ics file")
