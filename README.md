@@ -19,4 +19,5 @@ Running `org2cal -s 2022-4-2 -e 2022-4-2` converts an org entry like
   :END:
 ```
 into Calendar events like
+
 ![calendar-screenshot](./cal-screenshot.png)
